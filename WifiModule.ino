@@ -1,41 +1,46 @@
 #include "WifiModule.h"
 
 //constants
-const char* ssid = "REPLACE_WITH_YOUR_SSID";
-const char* password = "REPLACE_WITH_YOUR_PASSWORD";
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 3600;
+const char* ssid = "GTE-Meeting";//"TP-Link_EB17";
+const char* password = "godelguest";//"30849518";
+const char* ntpServer1 = "pool.ntp.org";
+const char* ntpServer2 = "time.windows.com";
+const char* ntpServer3 = "time.nist.gov";
+const int utcOffsetInSeconds = 7200;
+const int daylightOffsetInSeconds = 7200;
 
 //variables
 int startTime = 0;
 int endTime = 10000;
 struct tm timeinfo;
+time_t now;
 
 void ConnectToWiFi(){
       WiFi.mode(WIFI_STA);
 
       if ( WiFi.status() != WL_CONNECTED ){
             WiFi.begin(ssid, password);
-
-            startTime = millis();
-            
+            startTime = millis();            
             while (WiFi.status() != WL_CONNECTED && endTime > millis() - startTime ) {
                   //delay
             }
-
-            if ( WiFi.status() == WL_CONNECTED ){
-                  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-            }
       }
-      else{
-            configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+      
+      if ( WiFi.status() == WL_CONNECTED ){
+            ConfigTime();
       }
 }
 
 
-tm GetLocalTime()
-{
-      getLocalTime(&timeinfo);
-      return timeinfo;
+void ConfigTime(){
+      configTime(0 , 0, ntpServer1, ntpServer2, ntpServer3 );
+}
+
+unsigned long getTime() {
+      struct tm timeinfo;
+      if (!getLocalTime(&timeinfo)) {
+            return(0);
+      }
+      time(&now);
+      return now;
 }
